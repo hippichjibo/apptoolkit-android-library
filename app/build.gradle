@@ -1,0 +1,71 @@
+apply plugin: 'com.android.application'
+apply plugin: "kotlin-android"
+apply plugin: 'kotlin-android-extensions'
+
+repositories {
+    maven { url "http://artifactory.jibo.com/artifactory/Android_maven" }
+    mavenCentral()
+    mavenLocal()
+}
+
+android {
+    compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
+    buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+    defaultConfig {
+        applicationId "com.jibo.apptoolkit.android.example"
+        minSdkVersion Integer.parseInt(project.ANDROID_BUILD_MIN_SDK_VERSION)
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+        versionCode Integer.parseInt(project.VERSION_CODE)
+        versionName project.VERSION_NAME
+    }
+
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('app.properties').newDataInputStream())
+    def id = properties.getProperty('app.id')
+    def secret = properties.getProperty('app.secret')
+
+    buildTypes {
+        debug {
+            resValue "string", "appId", id
+            resValue "string", "appSecret", secret
+        }
+        release {
+            resValue "string", "appId", id
+            resValue "string", "appSecret", secret
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/dependencies.txt'
+        exclude 'META-INF/LGPL2.1'
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    testImplementation 'junit:junit:4.12'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${property('kotlin.version')}"
+    implementation 'com.android.support:appcompat-v7:27.1.0'
+    implementation 'com.android.support:design:27.1.0'
+    implementation 'com.android.support:recyclerview-v7:27.1.0'
+
+    implementation 'com.jibo.apptoolkit:apptoolkit-java-protocol:0.2.3'
+    // Use for testing
+    //implementation 'com.jibo.apptoolkit.android:apptoolkit-android-library:0.0.0.1'
+    // Use for development
+    implementation project(':apptoolkit-android-library')
+}

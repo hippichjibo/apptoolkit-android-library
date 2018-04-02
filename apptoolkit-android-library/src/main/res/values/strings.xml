@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- Genders -->
+	<string name="jbaws_Male">Male</string>
+	<string name="jbaws_Female">Female</string>
+	<string name="jbaws_Other">Other</string>
+
+	<!-- Relationship groups -->
+	<string name="jbaws_Parent">Parent</string>
+	<string name="jbaws_Child">Child</string>
+	<string name="jbaws_Partner">Partner</string>
+	<string name="jbaws_Sibling">Sibling</string>
+
+	<!-- Relationship names -->
+	<string name="jbaws_Mom">Mom</string>
+	<string name="jbaws_Dad">Dad</string>
+	<string name="jbaws_StepMom">Step Mom</string>
+	<string name="jbaws_StepDad">Step Dad</string>
+	<string name="jbaws_Wife">Wife</string>
+	<string name="jbaws_Girlfriend">Girlfriend</string>
+	<string name="jbaws_Fiancee">Fiancee</string>
+	<string name="jbaws_Husband">Husband</string>
+	<string name="jbaws_Boyfriend">Boyfriend</string>
+	<string name="jbaws_Bride">Bride</string>
+	<string name="jbaws_ExtendedFamily">Extended family</string>
+	<string name="jbaws_Son">Son</string>
+	<string name="jbaws_Daughter">Daughter</string>
+	<string name="jbaws_StepSon">Step son</string>
+	<string name="jbaws_StepDaughter">Step daughter</string>
+	<string name="jbaws_SonInLaw">Son-in-law</string>
+	<string name="jbaws_DaughterInLaw">Daughter-in-law</string>
+	<string name="jbaws_Brother">Brother</string>
+	<string name="jbaws_TwinBrother">Twin brother</string>
+	<string name="jbaws_StepBrother">Step brother</string>
+	<string name="jbaws_HalfBrother">Half brother</string>
+	<string name="jbaws_Sister">Sister</string>
+	<string name="jbaws_TwinSister">Twin sister</string>
+	<string name="jbaws_StepSister">Step sister</string>
+	<string name="jbaws_HalfSister">Half sister</string>
+	<string name="jbaws_Grandfather">Grandfather</string>
+	<string name="jbaws_Grandmother">Grandmother</string>
+	<string name="jbaws_StepGrandfather">Step grandfather</string>
+	<string name="jbaws_StepGrandmother">Step grandmother</string>
+	<string name="jbaws_GreatGrandfather">Great grandfather</string>
+	<string name="jbaws_GreatGrandmother">Great grandmother</string>
+	<string name="jbaws_Grandson">Grandson</string>
+	<string name="jbaws_Granddaughter">Granddaughter</string>
+	<string name="jbaws_GreatGrandson">Great grandson</string>
+	<string name="jbaws_GreatGranddaughter">Great granddaughter</string>
+	<string name="jbaws_Aunt">Aunt</string>
+	<string name="jbaws_Uncle">Uncle</string>
+	<string name="jbaws_Cousin">Cousin</string>
+	<string name="jbaws_Niece">Niece</string>
+	<string name="jbaws_Nephew">Nephew</string>
+	<string name="jbaws_Friend">Friend</string>
+	<string name="jbaws_Acquaintance">Acquaintance</string>
+
+</resources>
