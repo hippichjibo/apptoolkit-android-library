@@ -3,7 +3,7 @@ apply plugin: "kotlin-android"
 apply plugin: 'kotlin-android-extensions'
 
 repositories {
-    maven { url "http://artifactory.jibo.com/artifactory/Android_maven" }
+    maven { url "https://oss.sonatype.org/content/repositories/staging/" }
     mavenCentral()
     mavenLocal()
 }
@@ -63,9 +63,9 @@ dependencies {
     implementation 'com.android.support:design:27.1.0'
     implementation 'com.android.support:recyclerview-v7:27.1.0'
 
-    implementation 'com.jibo.apptoolkit:apptoolkit-java-protocol:0.2.3'
+    implementation 'com.jibo.apptoolkit:apptoolkit-java-protocol:0.2.4'
     // Use for testing
-    //implementation 'com.jibo.apptoolkit.android:apptoolkit-android-library:0.0.0.1'
+    implementation 'com.jibo.apptoolkit.android:apptoolkit-android-library:0.0.0.1'
     // Use for development
-    implementation project(':apptoolkit-android-library')
+    //implementation project(':apptoolkit-android-library')
 }
