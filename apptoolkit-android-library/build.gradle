@@ -109,7 +109,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
 }
 
-afterEvaluate { project ->
+task deploy {
     uploadArchives {
         repositories {
             mavenDeployer {
