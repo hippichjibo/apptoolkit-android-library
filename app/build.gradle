@@ -8,6 +8,24 @@ repositories {
     mavenLocal()
 }
 
+def getAppId() {
+    if (project.rootProject.file('app.properties').exists()) {
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('app.properties').newDataInputStream())
+        return properties.getProperty('app.id')
+    }
+    return "FAKE_ID"
+}
+
+def getAppSecret() {
+    if (project.rootProject.file('app.properties').exists()) {
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('app.properties').newDataInputStream())
+        return properties.getProperty('app.secret')
+    }
+    return "FAKE_SECRET"
+}
+
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
     buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
@@ -19,19 +37,14 @@ android {
         versionName project.VERSION_NAME
     }
 
-    Properties properties = new Properties()
-    properties.load(project.rootProject.file('app.properties').newDataInputStream())
-    def id = properties.getProperty('app.id')
-    def secret = properties.getProperty('app.secret')
-
     buildTypes {
         debug {
-            resValue "string", "appId", id
-            resValue "string", "appSecret", secret
+            resValue "string", "appId", getAppId()
+            resValue "string", "appSecret", getAppSecret()
         }
         release {
-            resValue "string", "appId", id
-            resValue "string", "appSecret", secret
+            resValue "string", "appId", getAppId()
+            resValue "string", "appSecret", getAppSecret()
         }
     }
 
