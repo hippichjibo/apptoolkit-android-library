@@ -3,7 +3,6 @@ package com.jibo.apptoolkit.android.model.api
 import android.os.Parcel
 import android.os.Parcelable
 import com.jibo.apptoolkit.protocol.api.BaseRobot
-import java.util.*
 
 /*
  * Created by calvinator on 1/26/18.
@@ -23,7 +22,7 @@ open class Robot : BaseRobot, Parcelable {
 
     internal constructor(robot: BaseRobot) : super(robot.id, robot.name, robot.robotName) {}
 
-    internal constructor(`in`: Parcel) : super(`in`.readString(), `in`.readString(), `in`.readString()) {}
+    constructor(parcel: Parcel) : super(parcel.readString(), parcel.readString(), parcel.readString()) {}
 
     override fun toString(): String {
         return "$id:$name:$robotName"
@@ -43,9 +42,9 @@ open class Robot : BaseRobot, Parcelable {
 
     companion object {
 
-        val CREATOR: Parcelable.Creator<Robot> = object : Parcelable.Creator<Robot> {
-            override fun createFromParcel(`in`: Parcel): Robot {
-                return Robot(`in`)
+        @JvmField val CREATOR: Parcelable.Creator<Robot> = object : Parcelable.Creator<Robot> {
+            override fun createFromParcel(parcel: Parcel): Robot {
+                return Robot(parcel)
             }
 
             override fun newArray(size: Int): Array<Robot?> {
