@@ -78,7 +78,7 @@ dependencies {
 
     implementation 'com.jibo.apptoolkit:apptoolkit-java-protocol:0.2.5'
     // Use for testing
-    implementation 'com.jibo.apptoolkit.android:apptoolkit-android-library:0.0.0.1'
+    implementation 'com.jibo.apptoolkit.android:apptoolkit-android-library:0.0.0.2'
     // Use for development
     //implementation project(':apptoolkit-android-library')
 }
