@@ -8,14 +8,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import com.jibo.apptoolkit.protocol.CommandLibrary
-import com.jibo.apptoolkit.protocol.OnConnectionListener
-import com.jibo.apptoolkit.protocol.model.Command
-import com.jibo.apptoolkit.protocol.model.EventMessage
 import com.jibo.apptoolkit.android.JiboRemoteControl
 import com.jibo.apptoolkit.android.example.R
 import com.jibo.apptoolkit.android.example.ui.fragment.mjpeg.MjpegVideoFragment
 import com.jibo.apptoolkit.android.model.api.Robot
+import com.jibo.apptoolkit.protocol.CommandLibrary
+import com.jibo.apptoolkit.protocol.OnConnectionListener
+import com.jibo.apptoolkit.protocol.model.Command
+import com.jibo.apptoolkit.protocol.model.EventMessage
 import kotlinx.android.synthetic.main.fragment_control.*
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -146,7 +146,7 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandLibrary.OnC
         if (mCommandLibrary != null) {
             when (spinnerLookAt.selectedItemPosition) {
                 0 -> mCommandLibrary?.lookAt(Command.LookAtRequest.PositionTarget(intArrayOf(10, 10, 10)), this)
-                1 -> mCommandLibrary?.lookAt(Command.LookAtRequest.AngleTarget(intArrayOf(10, 10)), this)
+                1 -> mCommandLibrary?.lookAt(Command.LookAtRequest.AngleTarget(floatArrayOf(10f, 10f)), this)
                 2 -> mCommandLibrary?.lookAt(Command.LookAtRequest.EntityTarget(10L), this)
                 3 -> mCommandLibrary?.lookAt(Command.LookAtRequest.CameraTarget(intArrayOf(10, 10)), this)
             }
