@@ -265,7 +265,7 @@ class JiboRemoteControl private constructor() {
 
         sRomApiConnectionManager?.getRobots(object : Callback<RobotData> {
             override fun onResponse(call: Call<RobotData>, response: retrofit2.Response<RobotData>) {
-                fragment.dismiss()
+                fragment.dismissAllowingStateLoss()
                 if (response.isSuccessful) {
                     response.body()?.robots?.let { Robot.getRobot(it) }?.let { onAuthenticationListener?.onSuccess(it) }
                 } else {
@@ -279,7 +279,7 @@ class JiboRemoteControl private constructor() {
             }
 
             override fun onFailure(call: Call<RobotData>, t: Throwable) {
-                fragment.dismiss()
+                fragment.dismissAllowingStateLoss()
 
                 onAuthenticationListener?.onError(ConnectionException(ERROR_CONNECTION_PROBLEMS))
             }
