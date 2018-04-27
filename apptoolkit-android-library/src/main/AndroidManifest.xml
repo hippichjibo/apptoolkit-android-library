@@ -9,7 +9,8 @@
     <application>
         <activity
             android:name=".ui.SignInActivity"
-            android:theme="@style/ApptoolkitSignInTheme" />
+            android:theme="@style/ApptoolkitSignInTheme"
+            android:screenOrientation="locked"/>
     </application>
 
 </manifest>

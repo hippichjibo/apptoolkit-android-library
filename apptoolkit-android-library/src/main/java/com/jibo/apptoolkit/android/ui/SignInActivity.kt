@@ -35,6 +35,7 @@ class SignInActivity : AppCompatActivity(), JiboRemoteControl.OnAuthenticationLi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
+
         webview.settings.javaScriptEnabled = true
         webview.webViewClient = SignInViewClient()
         if (intent.hasExtra(PARAM_URL)) {
@@ -42,6 +43,10 @@ class SignInActivity : AppCompatActivity(), JiboRemoteControl.OnAuthenticationLi
         }
     }
 
+    override fun onBackPressed() {
+        JiboRemoteControl.instance.cancel()
+        super.onBackPressed()
+    }
 
     override fun onSuccess(robots: ArrayList<Robot>) {
         // Do nothing
