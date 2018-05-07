@@ -1,12 +1,18 @@
 package com.jibo.apptoolkit.android
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
 import com.google.gson.GsonBuilder
+import com.jibo.apptoolkit.android.model.api.Certificates
+import com.jibo.apptoolkit.android.model.api.Robot
+import com.jibo.apptoolkit.android.ui.ProgressFragment
+import com.jibo.apptoolkit.android.ui.SignInActivity
+import com.jibo.apptoolkit.android.util.LogUtils
 import com.jibo.apptoolkit.protocol.ConnectionException
 import com.jibo.apptoolkit.protocol.ConnectionException.*
 import com.jibo.apptoolkit.protocol.JiboRemoteInitializationException
@@ -14,15 +20,11 @@ import com.jibo.apptoolkit.protocol.JiboRemoteInitializationException.*
 import com.jibo.apptoolkit.protocol.OnConnectionListener
 import com.jibo.apptoolkit.protocol.api.RobotData
 import com.jibo.apptoolkit.protocol.api.Token
-import com.jibo.apptoolkit.android.model.api.Certificates
-import com.jibo.apptoolkit.android.model.api.Robot
-import com.jibo.apptoolkit.android.ui.ProgressFragment
-import com.jibo.apptoolkit.android.ui.SignInFragment
-import com.jibo.apptoolkit.android.util.LogUtils
 import retrofit2.Call
 import retrofit2.Callback
 import java.io.IOException
 import java.util.*
+
 
 /*
  * Created by alexz on 20.10.17.
@@ -44,6 +46,9 @@ class JiboRemoteControl private constructor() {
 
     private var mCertificatePollerThread: Thread? = null
 
+    var parentSignInActivity: AppCompatActivity? = null
+        private set
+
     /**
      * Authenticate with Jibo cloud.
      * This function will prompt users to sign into their Jibo account
@@ -51,6 +56,8 @@ class JiboRemoteControl private constructor() {
      * their account, they will be able to connect their robot to your app.
      */
     fun signIn(activity: AppCompatActivity?, onAuthenticationListener: OnAuthenticationListener?) {
+        parentSignInActivity = null
+
         checkInitStatus()
 
         if (activity == null) {
@@ -65,8 +72,8 @@ class JiboRemoteControl private constructor() {
             //if we came back from SignInFragment, so we want to authenticate with code&state
             //and get robots afterwards
             if (onAuthenticationListener != null
-                && onAuthenticationListener.javaClass.getName() == SignInFragment::class.java?.getName()
-                && onAuthenticationListener is SignInFragment) {
+                && onAuthenticationListener.javaClass.name == SignInActivity::class.java.name
+                && onAuthenticationListener is SignInActivity) {
                 authenticate(activity, onAuthenticationListener)
             } else {
                 sTempOnAuthenticationListener = onAuthenticationListener
@@ -86,6 +93,8 @@ class JiboRemoteControl private constructor() {
 
     /** Cancel an in-progress authentication.  */
     fun cancel() {
+        parentSignInActivity = null
+
         if (sTempOnAuthenticationListener != null) {
             sTempOnAuthenticationListener?.onCancel()
             sTempOnAuthenticationListener = null
@@ -195,14 +204,14 @@ class JiboRemoteControl private constructor() {
         checkInitStatus()
 
         if (activity == null || onAuthenticationListener == null
-            || onAuthenticationListener.javaClass.getName() != SignInFragment::class.java?.getName()
-            || onAuthenticationListener !is SignInFragment)
+            || onAuthenticationListener.javaClass.name != SignInActivity::class.java.name
+            || onAuthenticationListener !is SignInActivity)
             throw RuntimeException(ConnectionException(ERROR_SPOOFING_DETECTED))
 
-        val signInFragment = onAuthenticationListener as SignInFragment?
-        val state = signInFragment?.state
-        val code = signInFragment?.code
-        signInFragment?.dismiss()
+        val signInActivity = onAuthenticationListener as SignInActivity?
+        val state = signInActivity?.state
+        val code = signInActivity?.code
+        signInActivity?.finish()
 
         //checking states values
         if (!sRomApiConnectionManager?.isStateValid(state)!!) {
@@ -241,22 +250,22 @@ class JiboRemoteControl private constructor() {
     }
 
     private fun openSignInWindow(activity: AppCompatActivity, onAuthenticationListener: OnAuthenticationListener?) {
-        val args = Bundle()
-        args.putString(SignInFragment.PARAM_URL, sRomApiConnectionManager?.signInUrl)
-        val fragment = SignInFragment()
-        fragment.arguments = args
-        fragment.show(activity.supportFragmentManager, SignInFragment::class.java?.getSimpleName())
+        this.parentSignInActivity = activity
+
+        val intent = Intent(activity, SignInActivity::class.java)
+        intent.putExtra(SignInActivity.PARAM_URL, sRomApiConnectionManager?.signInUrl)
+        activity.startActivity(intent)
     }
 
     private fun openAutoLoginWindow(activity: AppCompatActivity, onAuthenticationListener: OnAuthenticationListener?) {
         val fragment = ProgressFragment()
-        fragment.show(activity.supportFragmentManager, ProgressFragment::class.java?.getSimpleName())
+        fragment.show(activity.supportFragmentManager, ProgressFragment::class.java.simpleName)
 
         sTempOnAuthenticationListener = null
 
         sRomApiConnectionManager?.getRobots(object : Callback<RobotData> {
             override fun onResponse(call: Call<RobotData>, response: retrofit2.Response<RobotData>) {
-                fragment.dismiss()
+                fragment.dismissAllowingStateLoss()
                 if (response.isSuccessful) {
                     response.body()?.robots?.let { Robot.getRobot(it) }?.let { onAuthenticationListener?.onSuccess(it) }
                 } else {
@@ -270,7 +279,7 @@ class JiboRemoteControl private constructor() {
             }
 
             override fun onFailure(call: Call<RobotData>, t: Throwable) {
-                fragment.dismiss()
+                fragment.dismissAllowingStateLoss()
 
                 onAuthenticationListener?.onError(ConnectionException(ERROR_CONNECTION_PROBLEMS))
             }

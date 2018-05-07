@@ -1,5 +1,6 @@
 package com.jibo.apptoolkit.android.example.ui.fragment
 
+import android.content.pm.ActivityInfo
 import android.graphics.Rect
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -29,14 +30,20 @@ class WelcomeFragment : BaseFragment(), JiboRemoteControl.OnAuthenticationListen
             mRobots?.clear()
             mRobots?.addAll(robots)
             list.adapter.notifyDataSetChanged()
+
+            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         }
 
         override fun onError(throwable: Throwable) {
             log("API onError:" + throwable.localizedMessage)
+
+            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         }
 
         override fun onCancel() {
             log("API onCancel by user")
+
+            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         }
     }
 
@@ -67,6 +74,8 @@ class WelcomeFragment : BaseFragment(), JiboRemoteControl.OnAuthenticationListen
 
     //    @OnClick(android.R.id.button1)
     fun onConnectClick() {
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
+
         JiboRemoteControl.instance.signIn(activity as AppCompatActivity, onAuthenticationListener)
     }
 
