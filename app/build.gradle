@@ -76,9 +76,9 @@ dependencies {
     implementation 'com.android.support:design:27.1.0'
     implementation 'com.android.support:recyclerview-v7:27.1.0'
 
-    implementation 'com.jibo.apptoolkit:apptoolkit-java-protocol:0.2.5'
+    //implementation 'com.jibo.apptoolkit:apptoolkit-java-protocol:0.2.5'
     // Use for testing
-    implementation 'com.jibo.apptoolkit.android:apptoolkit-android-library:0.0.0.2'
+    //implementation 'com.jibo.apptoolkit.android:apptoolkit-android-library:0.0.0.2'
     // Use for development
-    //implementation project(':apptoolkit-android-library')
+    implementation project(':apptoolkit-android-library')
 }

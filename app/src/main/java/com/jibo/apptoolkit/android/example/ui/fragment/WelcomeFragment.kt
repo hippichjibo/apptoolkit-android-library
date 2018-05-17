@@ -11,7 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.jibo.apptoolkit.android.JiboRemoteControl
+import com.jibo.apptoolkit.android.JiboCommandControl
 import com.jibo.apptoolkit.android.example.R
 import com.jibo.apptoolkit.android.model.api.Robot
 import kotlinx.android.synthetic.main.fragment_welcome.*
@@ -20,12 +20,12 @@ import java.util.*
 /**
  * A placeholder fragment containing a simple view.
  */
-class WelcomeFragment : BaseFragment(), JiboRemoteControl.OnAuthenticationListener {
+class WelcomeFragment : BaseFragment(), JiboCommandControl.OnAuthenticationListener {
 
     private var mAdapter: RecyclerView.Adapter<*>? = null
     private var mLayoutManager: RecyclerView.LayoutManager? = null
     private var mRobots: ArrayList<Robot>? = null
-    private val onAuthenticationListener = object : JiboRemoteControl.OnAuthenticationListener {
+    private val onAuthenticationListener = object : JiboCommandControl.OnAuthenticationListener {
         override fun onSuccess(robots: ArrayList<Robot>) {
             mRobots?.clear()
             mRobots?.addAll(robots)
@@ -76,12 +76,12 @@ class WelcomeFragment : BaseFragment(), JiboRemoteControl.OnAuthenticationListen
     fun onConnectClick() {
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
 
-        JiboRemoteControl.instance.signIn(activity as AppCompatActivity, onAuthenticationListener)
+        JiboCommandControl.instance.signIn(activity as AppCompatActivity, onAuthenticationListener)
     }
 
     //    @OnClick(android.R.id.button2)
     fun onLogoutClick() {
-        JiboRemoteControl.instance.logOut()
+        JiboCommandControl.instance.logOut()
     }
 
     private fun log(msg: String) {

@@ -82,7 +82,7 @@ public class TestRomCommanderWrapper extends WebSocketListener
         mErrorCounter++;
     }
 
-    // JiboRemoteControl.OnConnectionListener functions
+    // JiboCommandControl.OnConnectionListener functions
 
     @Override
     public void onConnected() {
