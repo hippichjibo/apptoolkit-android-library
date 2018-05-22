@@ -258,14 +258,18 @@ class JiboCommandControl private constructor() {
     }
 
     private fun openAutoLoginWindow(activity: AppCompatActivity, onAuthenticationListener: OnAuthenticationListener?) {
-        val fragment = ProgressFragment()
-        fragment.show(activity.supportFragmentManager, ProgressFragment::class.java.simpleName)
+        var fragment: ProgressFragment? = ProgressFragment()
+        try {
+            fragment?.show(activity.supportFragmentManager, ProgressFragment::class.java.simpleName)
+        } catch (e: Exception) {
+            fragment = null
+        }
 
         sTempOnAuthenticationListener = null
 
         sRomApiConnectionManager?.getRobots(object : Callback<RobotData> {
             override fun onResponse(call: Call<RobotData>, response: retrofit2.Response<RobotData>) {
-                fragment.dismissAllowingStateLoss()
+                fragment?.dismissAllowingStateLoss()
                 if (response.isSuccessful) {
                     response.body()?.robots?.let { Robot.getRobot(it) }?.let { onAuthenticationListener?.onSuccess(it) }
                 } else {
@@ -279,7 +283,7 @@ class JiboCommandControl private constructor() {
             }
 
             override fun onFailure(call: Call<RobotData>, t: Throwable) {
-                fragment.dismissAllowingStateLoss()
+                fragment?.dismissAllowingStateLoss()
 
                 onAuthenticationListener?.onError(ConnectionException(ERROR_CONNECTION_PROBLEMS))
             }
