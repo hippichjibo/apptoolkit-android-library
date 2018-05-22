@@ -90,7 +90,7 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${property('kotlin.version')}"
-    //implementation 'com.jibo.apptoolkit:apptoolkit-java-protocol:0.2.5'
+    implementation 'com.jibo.apptoolkit:apptoolkit-java-protocol:0.2.6'
     implementation 'com.google.code.gson:gson:2.8.2'
 
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'

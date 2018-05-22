@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import com.jibo.apptoolkit.android.JiboCommandControl
 import com.jibo.apptoolkit.android.example.R
 import com.jibo.apptoolkit.android.model.api.Robot
@@ -36,6 +37,7 @@ class WelcomeFragment : BaseFragment(), JiboCommandControl.OnAuthenticationListe
 
         override fun onError(throwable: Throwable) {
             log("API onError:" + throwable.localizedMessage)
+            Toast.makeText(activity,throwable.localizedMessage,Toast.LENGTH_SHORT).show()
 
             activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         }
