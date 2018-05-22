@@ -38,8 +38,8 @@
 
 -dontwarn okio.**
 
--keep class com.jibo.apptoolkit.android.JiboRemoteControl {public *;}
--keep class com.jibo.apptoolkit.android.JiboRemoteControl$* {public *;}
+-keep class com.jibo.apptoolkit.android.JiboCommandControl {public *;}
+-keep class com.jibo.apptoolkit.android.JiboCommandControl$* {public *;}
 -keep class com.jibo.apptoolkit.android.ui.* {public *;}
 -keep class com.jibo.apptoolkit.android.model.** { *;}
 -keep class com.jibo.apptoolkit.android.util.Commons { public *;}

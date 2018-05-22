@@ -8,11 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import com.jibo.apptoolkit.android.JiboRemoteControl
+import com.jibo.apptoolkit.android.JiboCommandControl
 import com.jibo.apptoolkit.android.example.R
 import com.jibo.apptoolkit.android.example.ui.fragment.mjpeg.MjpegVideoFragment
 import com.jibo.apptoolkit.android.model.api.Robot
-import com.jibo.apptoolkit.protocol.CommandLibrary
+import com.jibo.apptoolkit.protocol.CommandRequester
 import com.jibo.apptoolkit.protocol.OnConnectionListener
 import com.jibo.apptoolkit.protocol.model.Command
 import com.jibo.apptoolkit.protocol.model.EventMessage
@@ -24,7 +24,7 @@ import java.io.InputStream
 /**
  * A placeholder fragment containing a simple view.
  */
-class ControlFragment : BaseFragment(), OnConnectionListener, CommandLibrary.OnCommandResponseListener {
+class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.OnCommandResponseListener {
 
     private val LOOK_AT_OPTIONS = arrayOf("PositionTarget", "AngleTarget", "EntityTarget", "CameraTarget")
 
@@ -32,7 +32,7 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandLibrary.OnC
     private var isEyeDisplayed = true
 
     private var mRobot: Robot? = null
-    private var mCommandLibrary: CommandLibrary? = null
+    private var mCommandRequester: CommandRequester? = null
     private var progressFragment: ProgressFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,12 +95,12 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandLibrary.OnC
         progressFragment = ProgressFragment()
         progressFragment?.show(fragmentManager, ProgressFragment::class.java.simpleName)
 
-        mRobot?.let { JiboRemoteControl.instance.connect(it, this) }
+        mRobot?.let { JiboCommandControl.instance.connect(it, this) }
     }
 
     //    @OnClick(android.R.id.button2)
     fun onDisconnectClick() {
-        JiboRemoteControl.instance.disconnect()
+        JiboCommandControl.instance.disconnect()
         hideProgress()
         textLog?.text = ""
     }
@@ -116,8 +116,8 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandLibrary.OnC
 
     //    @OnClick(R.id.btnTakePhoto)
     fun onBtnTakePhotoClick() {
-        if (mCommandLibrary != null) {
-            latestCommandID = mCommandLibrary?.takePhoto(Command.TakePhotoRequest.Camera.Left, Command.TakePhotoRequest
+        if (mCommandRequester != null) {
+            latestCommandID = mCommandRequester?.media?.capture?.photo(Command.TakePhotoRequest.Camera.Left, Command.TakePhotoRequest
                     .CameraResolution
                     .MedRes, false, this)
         }
@@ -127,8 +127,8 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandLibrary.OnC
     //    @OnClick(R.id.btnSay)
     // TODO: send emojis too
     fun onBtnSayClick() {
-        if (mCommandLibrary != null) {
-//            mCommandLibrary?.say("<pitch " +
+        if (mCommandRequester != null) {
+//            mCommandRequester?.say("<pitch " +
 //                                "mult=\"0.65\"><anim cat='cat' meta='(rom)' nonBlocking='true' />" +
 //                                "</pitch>", this)
 
@@ -137,99 +137,99 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandLibrary.OnC
                 text = "<anim cat='cat' meta='(rom)' nonBlocking='true' />Hello"
             }
 
-            mCommandLibrary?.say(text, this)
+            mCommandRequester?.expression?.say(text, this)
         }
     }
 
     //    @OnClick(R.id.btnLookAt)
     fun onBtnLootAtClick() {
-        if (mCommandLibrary != null) {
+        if (mCommandRequester != null) {
             when (spinnerLookAt.selectedItemPosition) {
-                0 -> mCommandLibrary?.lookAt(Command.LookAtRequest.PositionTarget(intArrayOf(10, 10, 10)), this)
-                1 -> mCommandLibrary?.lookAt(Command.LookAtRequest.AngleTarget(floatArrayOf(10f, 10f)), this)
-                2 -> mCommandLibrary?.lookAt(Command.LookAtRequest.EntityTarget(10L), this)
-                3 -> mCommandLibrary?.lookAt(Command.LookAtRequest.CameraTarget(intArrayOf(10, 10)), this)
+                0 -> mCommandRequester?.expression?.look(Command.LookAtRequest.PositionTarget(intArrayOf(10, 10, 10)), this)
+                1 -> mCommandRequester?.expression?.look(Command.LookAtRequest.AngleTarget(floatArrayOf(10f, 10f)), this)
+                2 -> mCommandRequester?.expression?.look(Command.LookAtRequest.EntityTarget(10L), this)
+                3 -> mCommandRequester?.expression?.look(Command.LookAtRequest.CameraTarget(intArrayOf(10, 10)), this)
             }
         }
     }
 
     //    @OnClick(android.R.id.button3)
     fun onVideoClick() {
-        if (mCommandLibrary != null) {
-            latestCommandID = mCommandLibrary?.video(Command.VideoRequest.VideoType.Debug, 0, this)
+        if (mCommandRequester != null) {
+            latestCommandID = mCommandRequester?.media?.capture?.video(Command.VideoRequest.VideoType.Debug, 0, this)
         }
     }
 
     //    @OnClick(R.id.btnCancel)
     fun onBtnCancelClick() {
-        if (mCommandLibrary != null && latestCommandID != null) {
-            mCommandLibrary?.cancel(latestCommandID, this)
+        if (mCommandRequester != null && latestCommandID != null) {
+            mCommandRequester?.cancel(latestCommandID, this)
         }
     }
 
     //    @OnClick(R.id.btnScreenGesture)
     fun onScreenGesture() {
-        if (mCommandLibrary != null) {
-            mCommandLibrary?.screenGesture(Command.ScreenGestureRequest.ScreenGestureFilter(Command.ScreenGestureRequest.ScreenGestureFilter.ScreenGestureType.Tap,
+        if (mCommandRequester != null) {
+            mCommandRequester?.display?.subscribe?.gesture(Command.ScreenGestureRequest.ScreenGestureFilter(Command.ScreenGestureRequest.ScreenGestureFilter.ScreenGestureType.Tap,
                                                                                            Command.ScreenGestureRequest.ScreenGestureFilter.Rectangle(100f, 100f,1280f,720f)), this)
         }
     }
 
     //    @OnClick(R.id.btnFetchAsset)
     fun onFetchAsset() {
-        if (mCommandLibrary != null) {
-            mCommandLibrary?.fetchAsset("https://upload.wikimedia.org/wikipedia/commons/d/d2/2010_Cynthia_Breazeal_4641804653.png", "Cynthia", this);
+        if (mCommandRequester != null) {
+            mCommandRequester?.assets?.load("https://upload.wikimedia.org/wikipedia/commons/d/d2/2010_Cynthia_Breazeal_4641804653.png", "Cynthia", this);
         }
     }
 
     //    @OnClick(R.id.btnDisplay)
     fun onDisplay() {
-        if (mCommandLibrary != null) {
-            if (isEyeDisplayed) mCommandLibrary?.display(Command.DisplayRequest.TextView("TextName", "Text Text"), this)
-            else mCommandLibrary?.display(Command.DisplayRequest.DisplayView(Command.DisplayRequest.DisplayViewType.Eye, "eye"), this)
+        if (mCommandRequester != null) {
+            if (isEyeDisplayed) mCommandRequester?.display?.text(Command.DisplayRequest.TextView("TextName", "Text Text"), this)
+            else mCommandRequester?.display?.eye(Command.DisplayRequest.EyeView( "eye"), this)
             isEyeDisplayed = !isEyeDisplayed
         }
     }
 
     //    @OnClick(R.id.btnListen)
     fun onListen() {
-        if (mCommandLibrary != null) {
-            mCommandLibrary?.listen(3000L, 3000L, "en", this)
+        if (mCommandRequester != null) {
+            mCommandRequester?.listen?.start(3000L, 3000L, "en", this)
         }
     }
 
     //    @OnClick(R.id.btnMotion)
     fun onMotion() {
-        if (mCommandLibrary != null) {
-            mCommandLibrary?.motion(this)
+        if (mCommandRequester != null) {
+            mCommandRequester?.perception?.subscribe?.motion(this)
         }
     }
 
     //    @OnClick(R.id.btnSpeech)
     fun onSpeech() {
-        if (mCommandLibrary != null) {
-            mCommandLibrary?.speech(true, this)
+        if (mCommandRequester != null) {
+            mCommandRequester?.speech(true, this)
         }
     }
 
     //    @OnClick(R.id.btnSetConfig)
     fun onSetConfig() {
-        if (mCommandLibrary != null) {
-            mCommandLibrary?.setConfig(Command.SetConfigRequest.SetConfigOptions(0.5f), this)
+        if (mCommandRequester != null) {
+            mCommandRequester?.config?.set(Command.SetConfigRequest.SetConfigOptions(0.5f), this)
         }
     }
 
     //    @OnClick(R.id.btnGetConfig)
     fun onGetConfig() {
-        if (mCommandLibrary != null) {
-            mCommandLibrary?.getConfig(this)
+        if (mCommandRequester != null) {
+            mCommandRequester?.config?.get(this)
         }
     }
 
     //    @OnClick(R.id.btnHeadTouch)
     fun onListenForHeadTouch() {
-        if (mCommandLibrary != null) {
-            mCommandLibrary?.headTouch(this)
+        if (mCommandRequester != null) {
+            mCommandRequester?.perception?.subscribe?.headTouch(this)
         }
     }
 
@@ -245,21 +245,21 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandLibrary.OnC
         log("CONNECTED")
     }
 
-    override fun onSessionStarted(CommandLibrary: CommandLibrary) {
+    override fun onSessionStarted(commandRequester: CommandRequester) {
         log("SESSION STARTED")
-        mCommandLibrary = CommandLibrary
+        mCommandRequester = commandRequester
         hideProgress()
     }
 
     override fun onConnectionFailed(throwable: Throwable) {
         log("CONNECTION FAILED: " + throwable.localizedMessage)
-        mCommandLibrary = null
+        mCommandRequester = null
         hideProgress()
     }
 
     override fun onDisconnected(code: Int) {
         log("DISCONNECTED:" + code)
-        mCommandLibrary = null
+        mCommandRequester = null
         hideProgress()
     }
 

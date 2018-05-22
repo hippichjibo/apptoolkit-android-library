@@ -1,6 +1,6 @@
 package com.jibo.apptoolkit.android
 
-import com.jibo.apptoolkit.protocol.CommandLibrary
+import com.jibo.apptoolkit.protocol.CommandRequester
 import com.jibo.apptoolkit.protocol.ConnectionException
 import com.jibo.apptoolkit.protocol.ConnectionException.*
 import com.jibo.apptoolkit.protocol.OnConnectionListener
@@ -23,20 +23,21 @@ internal class SdkConnectionManager
 
     private var mDisconnectedByClient = false
     private var mOnConnectionListener: OnConnectionListener? = null
-    private var mCommandLibrary: CommandLibrary? = null
+    private var mCommandRequester: CommandRequester? = null
 
     init {
 
         this.mOnConnectionListener = object : OnConnectionListener {
             override fun onConnected() {
-                mCommandLibrary = CommandLibrary(mSslContext, mWebSocket, mCertificate.ipAddress, mOnConnectionListener)
-                mCommandLibrary?.startSession()
+                mCommandRequester = CommandRequester(mSslContext, mWebSocket, mCertificate.ipAddress, mOnConnectionListener)
+
+                mCommandRequester?.session?.start();
 
                 onConnectionListener?.onConnected()
             }
 
-            override fun onSessionStarted(romCommander: CommandLibrary) {
-                onConnectionListener?.onSessionStarted(mCommandLibrary)
+            override fun onSessionStarted(romCommander: CommandRequester) {
+                onConnectionListener?.onSessionStarted(mCommandRequester)
             }
 
             override fun onConnectionFailed(throwable: Throwable) {
@@ -48,7 +49,7 @@ internal class SdkConnectionManager
             override fun onDisconnected(code: Int) {
                 //making sure we have all members reset and
                 if (!mDisconnectedByClient) {
-                    if (mCommandLibrary != null) mCommandLibrary?.disconnect()
+                    if (mCommandRequester != null) mCommandRequester?.session?.end()
                 }
 
                 onConnectionListener?.onDisconnected(code)
@@ -85,7 +86,7 @@ internal class SdkConnectionManager
                 override fun onMessage(webSocket: WebSocket?, text: String?) {
                     LogUtils.L.LOGD(TAG, "Receiving : " + text)
 
-                    if (mCommandLibrary != null) mCommandLibrary?.parseJiboResponse(text)
+                    if (mCommandRequester != null) mCommandRequester?.parseJiboResponse(text)
                 }
 
                 override fun onMessage(webSocket: WebSocket?, bytes: ByteString?) {
@@ -133,9 +134,9 @@ internal class SdkConnectionManager
 
     private fun _disconnect(code: Int) {
 
-        if (mCommandLibrary != null) {
-            mCommandLibrary?.disconnect()
-            mCommandLibrary = null
+        if (mCommandRequester != null) {
+            mCommandRequester?.session?.end()
+            mCommandRequester = null
         }
 
         if (mWebSocket != null) {

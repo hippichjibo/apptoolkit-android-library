@@ -33,7 +33,7 @@ import java.util.*
 /**
  * Connectivity information
  */
-class JiboRemoteControl private constructor() {
+class JiboCommandControl private constructor() {
 
     /** `true` if the robot has been successfully authenticated  */
     val isAuthenticated: Boolean
@@ -388,7 +388,7 @@ class JiboRemoteControl private constructor() {
     }
 
     companion object {
-        private val TAG = LogUtils.L.makeLogTag(JiboRemoteControl::class.java)
+        private val TAG = LogUtils.L.makeLogTag(JiboCommandControl::class.java)
 
         private val TOKEN_LIFESPAN = (3600 * 1000).toLong() //1h
 
@@ -400,7 +400,7 @@ class JiboRemoteControl private constructor() {
         private var sRomApiConnectionManager: ApiConnectionManager? = null
         private var mRomSdkConnectionManager: SdkConnectionManager? = null
 
-        private var sInstance: JiboRemoteControl? = null
+        private var sInstance: JiboCommandControl? = null
 
         private var sTempOnAuthenticationListener: OnAuthenticationListener? = null
 
@@ -414,7 +414,7 @@ class JiboRemoteControl private constructor() {
             }
         }
 
-        /** Instantiate a JiboRemoteControl app with your client ID and passcode.
+        /** Instantiate a JiboCommandControl app with your client ID and passcode.
          * See [Client ID Docs](https://app-toolkit.jibo.com/clientid/) for more info on client ids.
          * @param context this
          * @param clientId Your client ID as provided to you by Jibo. Inc.
@@ -438,22 +438,22 @@ class JiboRemoteControl private constructor() {
         private fun _init() {
             var tmpInstance = sInstance
             if (tmpInstance == null) {
-                synchronized(JiboRemoteControl::class.java) {
+                synchronized(JiboCommandControl::class.java) {
                     tmpInstance = sInstance
                     if (tmpInstance == null) {
-                        sInstance = JiboRemoteControl()
+                        sInstance = JiboCommandControl()
                     }
                 }
             }
         }
 
-        /** Get an instance of JiboRemoteControl  */
-        val instance: JiboRemoteControl
+        /** Get an instance of JiboCommandControl  */
+        val instance: JiboCommandControl
             get() {
                 if (sInstance == null)
                     throw RuntimeException(
                             JiboRemoteInitializationException(ERROR_JIBO_REMOTE_CONTROL_NOT_INITIALIZED))
-                return sInstance as JiboRemoteControl
+                return sInstance as JiboCommandControl
             }
         private val mCertificatePollerHandler = object : Handler() {
 

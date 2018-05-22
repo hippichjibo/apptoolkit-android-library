@@ -6,14 +6,14 @@ import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import com.jibo.apptoolkit.android.JiboRemoteControl
+import com.jibo.apptoolkit.android.JiboCommandControl
 import com.jibo.apptoolkit.android.R
 import com.jibo.apptoolkit.android.model.api.Robot
 import com.jibo.apptoolkit.android.util.LogUtils
 import kotlinx.android.synthetic.main.fragment_signin.*
 import java.util.*
 
-class SignInActivity : AppCompatActivity(), JiboRemoteControl.OnAuthenticationListener {
+class SignInActivity : AppCompatActivity(), JiboCommandControl.OnAuthenticationListener {
 
     companion object {
         val TAG = SignInActivity::class.java.simpleName
@@ -44,7 +44,7 @@ class SignInActivity : AppCompatActivity(), JiboRemoteControl.OnAuthenticationLi
     }
 
     override fun onBackPressed() {
-        JiboRemoteControl.instance.cancel()
+        JiboCommandControl.instance.cancel()
         super.onBackPressed()
     }
 
@@ -57,7 +57,7 @@ class SignInActivity : AppCompatActivity(), JiboRemoteControl.OnAuthenticationLi
     }
 
     override fun onCancel() {
-        JiboRemoteControl.instance.cancel()
+        JiboCommandControl.instance.cancel()
         finish()
     }
 
@@ -76,16 +76,16 @@ class SignInActivity : AppCompatActivity(), JiboRemoteControl.OnAuthenticationLi
                     try {
                         code = uri.getQueryParameter("code")
                         state = uri.getQueryParameter("state")
-                        JiboRemoteControl.instance.signIn(JiboRemoteControl.instance.parentSignInActivity, this@SignInActivity)
+                        JiboCommandControl.instance.signIn(JiboCommandControl.instance.parentSignInActivity, this@SignInActivity)
                     } catch (e: Exception) {
                         e.message?.let { LogUtils.L.LOGD(TAG, it, e) }
-                        JiboRemoteControl.instance.cancel()
+                        JiboCommandControl.instance.cancel()
                         finish()
                     }
 
                 } else {
                     //error, user pressed NO
-                    JiboRemoteControl.instance.cancel()
+                    JiboCommandControl.instance.cancel()
                     finish()
                 }
                 return true
