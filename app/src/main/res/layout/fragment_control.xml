@@ -60,6 +60,13 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/btnSpeech"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Speech" />
+
+            <Button
                 android:id="@+id/btnCancel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -361,34 +368,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Fetch Asset" />
-
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginBottom="4dp"
-            android:layout_marginTop="4dp"
-            android:background="@android:color/darker_gray" />
-
-
-        <!--Unsupported-->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Unsupported" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btnSpeech"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Speech" />
 
         </LinearLayout>
 

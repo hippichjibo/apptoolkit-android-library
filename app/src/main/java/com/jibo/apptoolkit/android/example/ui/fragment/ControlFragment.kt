@@ -288,7 +288,7 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
 
     fun onFaceEntity() {
         if (mCommandRequester != null) {
-            mCommandRequester?.perception?.subscribe?.face(this)
+            latestCommandID = mCommandRequester?.perception?.subscribe?.face(this)
         }
     }
 
