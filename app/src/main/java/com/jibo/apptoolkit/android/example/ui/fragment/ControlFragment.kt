@@ -1,5 +1,6 @@
 package com.jibo.apptoolkit.android.example.ui.fragment
 
+import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -13,6 +14,7 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import com.jibo.apptoolkit.android.JiboCommandControl
 import com.jibo.apptoolkit.android.example.R
+import com.jibo.apptoolkit.android.example.ui.dialog.LogDialog
 import com.jibo.apptoolkit.android.example.ui.fragment.mjpeg.MjpegVideoFragment
 import com.jibo.apptoolkit.android.model.api.Robot
 import com.jibo.apptoolkit.protocol.CommandRequester
@@ -30,12 +32,17 @@ import java.io.InputStream
 class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.OnCommandResponseListener {
 
     private val LOOK_AT_OPTIONS = arrayOf("PositionTarget", "AngleTarget", "EntityTarget", "CameraTarget")
+    private val DISPLAY_OPTIONS = arrayOf("Text", "Eye")
 
     private var latestCommandID: String? = null
 
     private var mRobot: Robot? = null
     private var mCommandRequester: CommandRequester? = null
     private var progressFragment: ProgressFragment? = null
+
+
+    private var logDialog: LogDialog? = null
+    private var log: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,7 +120,21 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
                     }
                 }
             }
+        }
 
+        spinnerDisplay.adapter = ArrayAdapter(activity, R.layout.item_dropdown, DISPLAY_OPTIONS)
+        spinnerDisplay.setSelection(0, false)
+        spinnerDisplay.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing.
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                when (position) {
+                    0 -> editDisplay.isEnabled = true
+                    1 -> editDisplay.isEnabled = false
+                }
+            }
         }
 
         button1.setOnClickListener { onConnectClick() }
@@ -133,6 +154,7 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
         btnGetConfig.setOnClickListener { onGetConfig() }
         btnHeadTouch.setOnClickListener { onListenForHeadTouch() }
         btnFace.setOnClickListener { onFaceEntity() }
+        btnLog.setOnClickListener { onShowLog() }
     }
 
     override fun onResume() {
@@ -166,7 +188,8 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
     fun onDisconnectClick() {
         JiboCommandControl.instance.disconnect()
         hideProgress()
-        textLog?.text = ""
+//        textLog?.text = ""
+        log = ""
     }
 
     private fun hideProgress() {
@@ -245,8 +268,12 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
     fun onDisplay() {
         if (mCommandRequester != null) {
             val text = editDisplay.text.toString()
-            if (TextUtils.isEmpty(text)) latestCommandID = mCommandRequester?.display?.eye(Command.DisplayRequest.EyeView( "eye"), this)
-            else latestCommandID = mCommandRequester?.display?.text(Command.DisplayRequest.TextView("TextName", text), this)
+            when (spinnerDisplay.selectedItemPosition) {
+                0 -> latestCommandID = mCommandRequester?.display?.text(Command.DisplayRequest.TextView("TextName", text), this)
+                1 -> latestCommandID = mCommandRequester?.display?.eye(Command.DisplayRequest.EyeView( "eye"), this)
+            }
+//            if (TextUtils.isEmpty(text)) latestCommandID = mCommandRequester?.display?.eye(Command.DisplayRequest.EyeView( "eye"), this)
+//            else latestCommandID = mCommandRequester?.display?.text(Command.DisplayRequest.TextView("TextName", text), this)
         }
     }
 
@@ -292,13 +319,27 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
         }
     }
 
+    fun onShowLog() {
+        logDialog = LogDialog.newInstance(log).setClickListener(object: DialogInterface.OnClickListener {
+            override fun onClick(dialog: DialogInterface?, which: Int) {
+                logDialog = null
+            }
+        })
+        logDialog?.show(fragmentManager!!, LogDialog::class.java.simpleName)
+    }
+
 
     private fun log(msg: String) {
-        if (activity == null) return
-        activity?.runOnUiThread {
-            val sb = StringBuilder(textLog.text).append(msg).append("\n")
-            textLog.text = sb.toString()
+        log += "$msg\n"
+        runOnUiThread {
+            logDialog?.updateMessage(log)
         }
+
+//        if (activity == null) return
+//        activity?.runOnUiThread {
+//            val sb = StringBuilder(textLog.text).append(msg).append("\n")
+//            textLog.text = sb.toString()
+//        }
     }
 
 

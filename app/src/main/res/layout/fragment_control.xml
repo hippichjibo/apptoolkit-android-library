@@ -312,11 +312,17 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
+            <Spinner
+                android:id="@+id/spinnerDisplay"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
             <EditText
                 android:id="@+id/editDisplay"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="3"
+                android:layout_weight="2"
                 android:hint="Text to display"
                 android:maxLines="2" />
 
@@ -383,14 +389,29 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="LOG" />
+            android:text="Log" />
 
-        <TextView
-            android:id="@+id/textLog"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textSize="12dp"
-            tools:text="" />
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnLog"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Show logs" />
+
+        </LinearLayout>
+
+        <!--<TextView-->
+        <!--android:id="@+id/textLog"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:textSize="12dp"-->
+        <!--tools:text="" />-->
+
 
     </LinearLayout>
 
