@@ -199,7 +199,7 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
                 text = "<anim cat='cat' meta='(rom)' nonBlocking='true' />Hello"
             }
 
-            mCommandRequester?.expression?.say(text, this)
+            latestCommandID = mCommandRequester?.expression?.say(text, this)
         }
     }
 
@@ -209,10 +209,10 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
             val v1 = editLookAt1.toInt()
             val v2 = editLookAt2.toInt()
             when (spinnerLookAt.selectedItemPosition) {
-                0 -> mCommandRequester?.expression?.look(Command.LookAtRequest.PositionTarget(intArrayOf(v0, v1, v2)), this)
-                1 -> mCommandRequester?.expression?.look(Command.LookAtRequest.AngleTarget(floatArrayOf(v0.toFloat(), v1.toFloat())), this)
-                2 -> mCommandRequester?.expression?.look(Command.LookAtRequest.EntityTarget(v0.toLong()), this)
-                3 -> mCommandRequester?.expression?.look(Command.LookAtRequest.CameraTarget(intArrayOf(v0, v1)), this)
+                0 -> latestCommandID = mCommandRequester?.expression?.look(Command.LookAtRequest.PositionTarget(intArrayOf(v0, v1, v2)), this)
+                1 -> latestCommandID = mCommandRequester?.expression?.look(Command.LookAtRequest.AngleTarget(floatArrayOf(v0.toFloat(), v1.toFloat())), this)
+                2 -> latestCommandID = mCommandRequester?.expression?.look(Command.LookAtRequest.EntityTarget(v0.toLong()), this)
+                3 -> latestCommandID = mCommandRequester?.expression?.look(Command.LookAtRequest.CameraTarget(intArrayOf(v0, v1)), this)
             }
         }
     }
@@ -225,64 +225,64 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
 
     fun onBtnCancelClick() {
         if (mCommandRequester != null && latestCommandID != null) {
-            mCommandRequester?.cancel(latestCommandID, this)
+            latestCommandID = mCommandRequester?.cancel(latestCommandID, this)
         }
     }
 
     fun onScreenGesture() {
         if (mCommandRequester != null) {
-            mCommandRequester?.display?.subscribe?.gesture(Command.ScreenGestureRequest.ScreenGestureFilter(Command.ScreenGestureRequest.ScreenGestureFilter.ScreenGestureType.Tap,
+            latestCommandID = mCommandRequester?.display?.subscribe?.gesture(Command.ScreenGestureRequest.ScreenGestureFilter(Command.ScreenGestureRequest.ScreenGestureFilter.ScreenGestureType.Tap,
                                                                                            Command.ScreenGestureRequest.ScreenGestureFilter.Rectangle(100f, 100f,1280f,720f)), this)
         }
     }
 
     fun onFetchAsset() {
         if (mCommandRequester != null) {
-            mCommandRequester?.assets?.load("https://upload.wikimedia.org/wikipedia/commons/d/d2/2010_Cynthia_Breazeal_4641804653.png", "Cynthia", this);
+            latestCommandID = mCommandRequester?.assets?.load("https://upload.wikimedia.org/wikipedia/commons/d/d2/2010_Cynthia_Breazeal_4641804653.png", "Cynthia", this);
         }
     }
 
     fun onDisplay() {
         if (mCommandRequester != null) {
             val text = editDisplay.text.toString()
-            if (TextUtils.isEmpty(text)) mCommandRequester?.display?.eye(Command.DisplayRequest.EyeView( "eye"), this)
-            else mCommandRequester?.display?.text(Command.DisplayRequest.TextView("TextName", text), this)
+            if (TextUtils.isEmpty(text)) latestCommandID = mCommandRequester?.display?.eye(Command.DisplayRequest.EyeView( "eye"), this)
+            else latestCommandID = mCommandRequester?.display?.text(Command.DisplayRequest.TextView("TextName", text), this)
         }
     }
 
     fun onListen() {
         if (mCommandRequester != null) {
-            mCommandRequester?.listen?.start(3000L, 3000L, "en", this)
+            latestCommandID = mCommandRequester?.listen?.start(3000L, 3000L, "en", this)
         }
     }
 
     fun onMotion() {
         if (mCommandRequester != null) {
-            mCommandRequester?.perception?.subscribe?.motion(this)
+            latestCommandID = mCommandRequester?.perception?.subscribe?.motion(this)
         }
     }
 
     fun onSpeech() {
         if (mCommandRequester != null) {
-            mCommandRequester?.speech(true, this)
+            latestCommandID = mCommandRequester?.speech(true, this)
         }
     }
 
     fun onSetConfig() {
         if (mCommandRequester != null) {
-            mCommandRequester?.config?.set(Command.SetConfigRequest.SetConfigOptions(0.5f), this)
+            latestCommandID =  mCommandRequester?.config?.set(Command.SetConfigRequest.SetConfigOptions(0.5f), this)
         }
     }
 
     fun onGetConfig() {
         if (mCommandRequester != null) {
-            mCommandRequester?.config?.get(this)
+            latestCommandID = mCommandRequester?.config?.get(this)
         }
     }
 
     fun onListenForHeadTouch() {
         if (mCommandRequester != null) {
-            mCommandRequester?.perception?.subscribe?.headTouch(this)
+            latestCommandID = mCommandRequester?.perception?.subscribe?.headTouch(this)
         }
     }
 
