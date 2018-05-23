@@ -20,7 +20,14 @@ class LogDialog : DialogFragment() {
                     doButtonClick(DialogInterface.BUTTON_POSITIVE)
                     dismiss()
                 }
+                .setNeutralButton("REFRESH", null)
                 .create()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        dialog.findViewById<TextView>(android.R.id.message).textSize = 8f
+        (dialog as AlertDialog).getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener { doButtonClick(DialogInterface.BUTTON_NEUTRAL) }
     }
 
     fun setClickListener(mListener: DialogInterface.OnClickListener): LogDialog {
@@ -57,7 +64,6 @@ class LogDialog : DialogFragment() {
         val TAG = LogDialog::class.java.simpleName
 
         val MESSAGE = "message"
-        val TITLE = "title"
 
         fun newInstance(message: String): LogDialog {
             val frag = LogDialog()

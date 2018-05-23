@@ -320,9 +320,10 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
     }
 
     fun onShowLog() {
-        logDialog = LogDialog.newInstance(log).setClickListener(object: DialogInterface.OnClickListener {
-            override fun onClick(dialog: DialogInterface?, which: Int) {
-                logDialog = null
+        logDialog = LogDialog.newInstance(log).setClickListener(DialogInterface.OnClickListener { dialog, which ->
+            when (which) {
+                DialogInterface.BUTTON_POSITIVE -> logDialog = null
+                DialogInterface.BUTTON_NEUTRAL -> logDialog?.updateMessage(log)
             }
         })
         logDialog?.show(fragmentManager!!, LogDialog::class.java.simpleName)
@@ -331,9 +332,6 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
 
     private fun log(msg: String) {
         log += "$msg\n"
-        runOnUiThread {
-            logDialog?.updateMessage(log)
-        }
 
 //        if (activity == null) return
 //        activity?.runOnUiThread {
