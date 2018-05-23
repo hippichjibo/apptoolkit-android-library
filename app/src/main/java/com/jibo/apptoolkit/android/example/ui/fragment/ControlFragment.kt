@@ -6,9 +6,7 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Base64
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
@@ -25,6 +23,8 @@ import kotlinx.android.synthetic.main.fragment_control.*
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
+
+
 
 /**
  * A placeholder fragment containing a simple view.
@@ -52,6 +52,8 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
         if (arguments != null) {
             mRobot = arguments?.getParcelable(Robot::class.java.name)
         }
+
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -154,7 +156,6 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
         btnGetConfig.setOnClickListener { onGetConfig() }
         btnHeadTouch.setOnClickListener { onListenForHeadTouch() }
         btnFace.setOnClickListener { onFaceEntity() }
-        btnLog.setOnClickListener { onShowLog() }
     }
 
     override fun onResume() {
@@ -174,6 +175,20 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
         onDisconnectClick()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater?.inflate(R.menu.log, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.action_log -> {
+                onShowLog()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
 
     private fun EditText.toInt() : Int = if (TextUtils.isEmpty(text)) 0 else text.toString().toInt()
 

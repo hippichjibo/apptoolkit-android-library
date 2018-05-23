@@ -26,7 +26,7 @@ class LogDialog : DialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        dialog.findViewById<TextView>(android.R.id.message).textSize = 8f
+        dialog.findViewById<TextView>(android.R.id.message).textSize = CONFIG_TEXT_SIZE
         (dialog as AlertDialog).getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener { doButtonClick(DialogInterface.BUTTON_NEUTRAL) }
     }
 
@@ -64,6 +64,8 @@ class LogDialog : DialogFragment() {
         val TAG = LogDialog::class.java.simpleName
 
         val MESSAGE = "message"
+
+        private const val CONFIG_TEXT_SIZE = 10f
 
         fun newInstance(message: String): LogDialog {
             val frag = LogDialog()
