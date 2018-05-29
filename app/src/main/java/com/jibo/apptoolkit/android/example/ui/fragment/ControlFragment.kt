@@ -1,15 +1,18 @@
 package com.jibo.apptoolkit.android.example.ui.fragment
 
+import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Base64
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.EditText
 import com.jibo.apptoolkit.android.JiboCommandControl
 import com.jibo.apptoolkit.android.example.R
+import com.jibo.apptoolkit.android.example.ui.dialog.LogDialog
 import com.jibo.apptoolkit.android.example.ui.fragment.mjpeg.MjpegVideoFragment
 import com.jibo.apptoolkit.android.model.api.Robot
 import com.jibo.apptoolkit.protocol.CommandRequester
@@ -21,19 +24,25 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
 
+
+
 /**
  * A placeholder fragment containing a simple view.
  */
 class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.OnCommandResponseListener {
 
     private val LOOK_AT_OPTIONS = arrayOf("PositionTarget", "AngleTarget", "EntityTarget", "CameraTarget")
+    private val DISPLAY_OPTIONS = arrayOf("Text", "Eye")
 
     private var latestCommandID: String? = null
-    private var isEyeDisplayed = true
 
     private var mRobot: Robot? = null
     private var mCommandRequester: CommandRequester? = null
     private var progressFragment: ProgressFragment? = null
+
+
+    private var logDialog: LogDialog? = null
+    private var log: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +52,8 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
         if (arguments != null) {
             mRobot = arguments?.getParcelable(Robot::class.java.name)
         }
+
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -54,6 +65,79 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
 
         spinnerLookAt.adapter = ArrayAdapter(activity, R.layout.item_dropdown, LOOK_AT_OPTIONS)
         spinnerLookAt.setSelection(0, false)
+        spinnerLookAt.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing.
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                when (position) {
+                    0 -> {
+                        editLookAt1.isEnabled = true
+                        editLookAt2.isEnabled = true
+
+                        editLookAt0.setText("")
+                        editLookAt1.setText("")
+                        editLookAt2.setText("")
+
+                        editLookAt0.hint = "X"
+                        editLookAt1.hint = "Y"
+                        editLookAt2.hint = "Z"
+                    }
+                    1 -> {
+                        editLookAt1.isEnabled = true
+                        editLookAt2.isEnabled = false
+
+                        editLookAt0.setText("")
+                        editLookAt1.setText("")
+                        editLookAt2.setText("")
+
+                        editLookAt0.hint = "θ"
+                        editLookAt1.hint = "ψ"
+                        editLookAt2.hint = ""
+                    }
+                    2 -> {
+                        editLookAt1.isEnabled = false
+                        editLookAt2.isEnabled = false
+
+                        editLookAt0.setText("")
+                        editLookAt1.setText("")
+                        editLookAt2.setText("")
+
+                        editLookAt0.hint = ""
+                        editLookAt1.hint = ""
+                        editLookAt2.hint = ""
+                    }
+                    3 -> {
+                        editLookAt1.isEnabled = true
+                        editLookAt2.isEnabled = false
+
+                        editLookAt0.setText("")
+                        editLookAt1.setText("")
+                        editLookAt2.setText("")
+
+                        editLookAt0.hint = "X"
+                        editLookAt1.hint = "Y"
+                        editLookAt2.hint = ""
+                    }
+                }
+            }
+        }
+
+        spinnerDisplay.adapter = ArrayAdapter(activity, R.layout.item_dropdown, DISPLAY_OPTIONS)
+        spinnerDisplay.setSelection(0, false)
+        spinnerDisplay.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing.
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                when (position) {
+                    0 -> editDisplay.isEnabled = true
+                    1 -> editDisplay.isEnabled = false
+                }
+            }
+        }
 
         button1.setOnClickListener { onConnectClick() }
         button2.setOnClickListener { onDisconnectClick() }
@@ -71,6 +155,7 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
         btnSetConfig.setOnClickListener { onSetConfig() }
         btnGetConfig.setOnClickListener { onGetConfig() }
         btnHeadTouch.setOnClickListener { onListenForHeadTouch() }
+        btnFace.setOnClickListener { onFaceEntity() }
     }
 
     override fun onResume() {
@@ -90,7 +175,24 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
         onDisconnectClick()
     }
 
-    //    @OnClick(android.R.id.button1)
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater?.inflate(R.menu.log, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.action_log -> {
+                onShowLog()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun EditText.toInt() : Int = if (TextUtils.isEmpty(text)) 0 else text.toString().toInt()
+
+
     fun onConnectClick() {
         progressFragment = ProgressFragment()
         progressFragment?.show(fragmentManager, ProgressFragment::class.java.simpleName)
@@ -98,11 +200,11 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
         mRobot?.let { JiboCommandControl.instance.connect(it, this) }
     }
 
-    //    @OnClick(android.R.id.button2)
     fun onDisconnectClick() {
         JiboCommandControl.instance.disconnect()
         hideProgress()
-        textLog?.text = ""
+//        textLog?.text = ""
+        log = ""
     }
 
     private fun hideProgress() {
@@ -114,7 +216,6 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
         }
     }
 
-    //    @OnClick(R.id.btnTakePhoto)
     fun onBtnTakePhotoClick() {
         if (mCommandRequester != null) {
             latestCommandID = mCommandRequester?.media?.capture?.photo(Command.TakePhotoRequest.Camera.Left, Command.TakePhotoRequest
@@ -124,7 +225,6 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
     }
 
 
-    //    @OnClick(R.id.btnSay)
     // TODO: send emojis too
     fun onBtnSayClick() {
         if (mCommandRequester != null) {
@@ -137,109 +237,124 @@ class ControlFragment : BaseFragment(), OnConnectionListener, CommandRequester.O
                 text = "<anim cat='cat' meta='(rom)' nonBlocking='true' />Hello"
             }
 
-            mCommandRequester?.expression?.say(text, this)
+            latestCommandID = mCommandRequester?.expression?.say(text, this)
         }
     }
 
-    //    @OnClick(R.id.btnLookAt)
     fun onBtnLootAtClick() {
         if (mCommandRequester != null) {
+            val v0 = editLookAt0.toInt()
+            val v1 = editLookAt1.toInt()
+            val v2 = editLookAt2.toInt()
             when (spinnerLookAt.selectedItemPosition) {
-                0 -> mCommandRequester?.expression?.look(Command.LookAtRequest.PositionTarget(intArrayOf(10, 10, 10)), this)
-                1 -> mCommandRequester?.expression?.look(Command.LookAtRequest.AngleTarget(floatArrayOf(10f, 10f)), this)
-                2 -> mCommandRequester?.expression?.look(Command.LookAtRequest.EntityTarget(10L), this)
-                3 -> mCommandRequester?.expression?.look(Command.LookAtRequest.CameraTarget(intArrayOf(10, 10)), this)
+                0 -> latestCommandID = mCommandRequester?.expression?.look(Command.LookAtRequest.PositionTarget(intArrayOf(v0, v1, v2)), this)
+                1 -> latestCommandID = mCommandRequester?.expression?.look(Command.LookAtRequest.AngleTarget(floatArrayOf(v0.toFloat(), v1.toFloat())), this)
+                2 -> latestCommandID = mCommandRequester?.expression?.look(Command.LookAtRequest.EntityTarget(v0.toLong()), this)
+                3 -> latestCommandID = mCommandRequester?.expression?.look(Command.LookAtRequest.CameraTarget(intArrayOf(v0, v1)), this)
             }
         }
     }
 
-    //    @OnClick(android.R.id.button3)
     fun onVideoClick() {
         if (mCommandRequester != null) {
             latestCommandID = mCommandRequester?.media?.capture?.video(Command.VideoRequest.VideoType.Debug, 0, this)
         }
     }
 
-    //    @OnClick(R.id.btnCancel)
     fun onBtnCancelClick() {
         if (mCommandRequester != null && latestCommandID != null) {
-            mCommandRequester?.cancel(latestCommandID, this)
+            latestCommandID = mCommandRequester?.cancel(latestCommandID, this)
         }
     }
 
-    //    @OnClick(R.id.btnScreenGesture)
     fun onScreenGesture() {
         if (mCommandRequester != null) {
-            mCommandRequester?.display?.subscribe?.gesture(Command.ScreenGestureRequest.ScreenGestureFilter(Command.ScreenGestureRequest.ScreenGestureFilter.ScreenGestureType.Tap,
+            latestCommandID = mCommandRequester?.display?.subscribe?.gesture(Command.ScreenGestureRequest.ScreenGestureFilter(Command.ScreenGestureRequest.ScreenGestureFilter.ScreenGestureType.Tap,
                                                                                            Command.ScreenGestureRequest.ScreenGestureFilter.Rectangle(100f, 100f,1280f,720f)), this)
         }
     }
 
-    //    @OnClick(R.id.btnFetchAsset)
     fun onFetchAsset() {
         if (mCommandRequester != null) {
-            mCommandRequester?.assets?.load("https://upload.wikimedia.org/wikipedia/commons/d/d2/2010_Cynthia_Breazeal_4641804653.png", "Cynthia", this);
+            latestCommandID = mCommandRequester?.assets?.load("https://upload.wikimedia.org/wikipedia/commons/d/d2/2010_Cynthia_Breazeal_4641804653.png", "Cynthia", this);
         }
     }
 
-    //    @OnClick(R.id.btnDisplay)
     fun onDisplay() {
         if (mCommandRequester != null) {
-            if (isEyeDisplayed) mCommandRequester?.display?.text(Command.DisplayRequest.TextView("TextName", "Text Text"), this)
-            else mCommandRequester?.display?.eye(Command.DisplayRequest.EyeView( "eye"), this)
-            isEyeDisplayed = !isEyeDisplayed
+            val text = editDisplay.text.toString()
+            when (spinnerDisplay.selectedItemPosition) {
+                0 -> latestCommandID = mCommandRequester?.display?.text(Command.DisplayRequest.TextView("TextName", text), this)
+                1 -> latestCommandID = mCommandRequester?.display?.eye(Command.DisplayRequest.EyeView( "eye"), this)
+            }
+//            if (TextUtils.isEmpty(text)) latestCommandID = mCommandRequester?.display?.eye(Command.DisplayRequest.EyeView( "eye"), this)
+//            else latestCommandID = mCommandRequester?.display?.text(Command.DisplayRequest.TextView("TextName", text), this)
         }
     }
 
-    //    @OnClick(R.id.btnListen)
     fun onListen() {
         if (mCommandRequester != null) {
-            mCommandRequester?.listen?.start(3000L, 3000L, "en", this)
+            latestCommandID = mCommandRequester?.listen?.start(3000L, 3000L, "en", this)
         }
     }
 
-    //    @OnClick(R.id.btnMotion)
     fun onMotion() {
         if (mCommandRequester != null) {
-            mCommandRequester?.perception?.subscribe?.motion(this)
+            latestCommandID = mCommandRequester?.perception?.subscribe?.motion(this)
         }
     }
 
-    //    @OnClick(R.id.btnSpeech)
     fun onSpeech() {
         if (mCommandRequester != null) {
-            mCommandRequester?.speech(true, this)
+            latestCommandID = mCommandRequester?.speech(true, this)
         }
     }
 
-    //    @OnClick(R.id.btnSetConfig)
     fun onSetConfig() {
         if (mCommandRequester != null) {
-            mCommandRequester?.config?.set(Command.SetConfigRequest.SetConfigOptions(0.5f), this)
+            latestCommandID =  mCommandRequester?.config?.set(Command.SetConfigRequest.SetConfigOptions(0.5f), this)
         }
     }
 
-    //    @OnClick(R.id.btnGetConfig)
     fun onGetConfig() {
         if (mCommandRequester != null) {
-            mCommandRequester?.config?.get(this)
+            latestCommandID = mCommandRequester?.config?.get(this)
         }
     }
 
-    //    @OnClick(R.id.btnHeadTouch)
     fun onListenForHeadTouch() {
         if (mCommandRequester != null) {
-            mCommandRequester?.perception?.subscribe?.headTouch(this)
+            latestCommandID = mCommandRequester?.perception?.subscribe?.headTouch(this)
         }
     }
 
-    private fun log(msg: String) {
-        if (activity == null) return
-        activity?.runOnUiThread {
-            val sb = StringBuilder(textLog.text).append(msg).append("\n")
-            textLog.text = sb.toString()
+    fun onFaceEntity() {
+        if (mCommandRequester != null) {
+            latestCommandID = mCommandRequester?.perception?.subscribe?.face(this)
         }
     }
+
+    fun onShowLog() {
+        logDialog = LogDialog.newInstance(log).setClickListener(DialogInterface.OnClickListener { dialog, which ->
+            when (which) {
+                DialogInterface.BUTTON_POSITIVE -> logDialog = null
+                DialogInterface.BUTTON_NEUTRAL -> logDialog?.updateMessage(log)
+            }
+        })
+        logDialog?.show(fragmentManager!!, LogDialog::class.java.simpleName)
+    }
+
+
+    private fun log(msg: String) {
+        log += "$msg\n"
+
+//        if (activity == null) return
+//        activity?.runOnUiThread {
+//            val sb = StringBuilder(textLog.text).append(msg).append("\n")
+//            textLog.text = sb.toString()
+//        }
+    }
+
 
     override fun onConnected() {
         log("CONNECTED")
